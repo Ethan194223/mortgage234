@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Calculator — Home Loan Statement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F7F9;--card:#FFFFFF;--ink:#0E1A2B;--ink-soft:#3A4557;
+    --muted:#77808F;--line:#E4E7EC;--gold:#B08A2E;--gold-soft:#E9DDBB;--green:#2E7D5B;
+  }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{font-family:"Archivo",system-ui,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 22px 80px}
+
+  .masthead{display:flex;align-items:center;justify-content:space-between;padding:0 2px 26px}
+  .wordmark{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .wordmark .dot{color:var(--gold)}
+  .tag{font-size:12px;color:var(--muted)}
+
+  .hero{background:var(--ink);color:#ECEFF4;border-radius:20px;padding:40px 40px 34px;margin-bottom:20px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-90px;top:-110px;width:340px;height:340px;background:radial-gradient(circle at center,rgba(176,138,46,.30),transparent 68%);pointer-events:none}
+  .hero-eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-soft)}
+  .hero h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(26px,4vw,34px);margin:10px 0 4px;line-height:1.12;letter-spacing:-.01em}
+  .hero h1 em{font-style:italic;font-weight:500;color:var(--gold)}
+  .pay-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .pay{font-size:clamp(44px,7vw,64px);font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .pay-per{color:var(--gold-soft);font-size:15px}
+  .hero-stats{display:flex;flex-wrap:wrap;gap:28px;margin-top:26px;position:relative}
+  .hstat b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+  .hstat span{font-size:12px;color:#A8B0BD}
+
+  .grid{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px}
+
+  .field{margin-bottom:16px}
+  label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:7px}
+  label .hint{font-weight:400;color:var(--muted)}
+  .input-wrap{position:relative}
+  .affix{position:absolute;left:0;top:0;bottom:0;width:42px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;border-right:1px solid var(--line);pointer-events:none}
+  input,select{width:100%;padding:13px 14px 13px 56px;font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:12px;background:#fff;transition:border-color .15s,box-shadow .15s}
+  input:focus-visible,select:focus-visible{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(176,138,46,.18)}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2377808F' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
+  .labeldiv{display:flex;gap:12px}.labeldiv .field{flex:1}
+  .footnote{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px}
+
+  .chart-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:16px;flex-wrap:wrap}
+  .chart-head h2{font-family:"Fraunces",serif;font-weight:600;font-size:22px;margin:0 0 4px}
+  .chart-head p{margin:0;font-size:13px;color:var(--muted)}
+  .legend{display:flex;gap:14px;font-size:12px;color:var(--ink-soft);align-items:center}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  svg.chart{width:100%;height:auto;display:block}
+  .axis{font-size:10px;fill:var(--muted)}
+
+  .donut-row{display:flex;gap:20px;align-items:center;margin-top:22px;flex-wrap:wrap}
+  .donut{position:relative;width:96px;height:96px;flex:none}
+  .donut svg{transform:rotate(-90deg)}
+  .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:var(--muted);line-height:1.2}
+  .donut-center b{font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums}
+  .donut-keys{font-size:12.5px;display:grid;gap:6px;color:var(--ink-soft)}
+  .donut-keys div{display:flex;align-items:center;gap:8px}
+  .kp{display:inline-block;width:9px;height:9px;border-radius:2px}
+  .saved{display:inline-flex;align-items:center;gap:7px;margin-top:4px;font-size:13px;color:var(--green);font-weight:600}
+
+  .tblhead{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 14px;gap:12px;flex-wrap:wrap}
+  .tblhead h2{font-family:"Fraunces",serif;font-weight:600;font-size:22px;margin:0}
+  .tblhead span{font-size:12px;color:var(--muted)}
+  .scroll{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:10px 16px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left;color:var(--muted)}
+  th{position:sticky;top:0;background:#FBFBFC;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+  td{border-bottom:1px solid var(--line)}tr:last-child td{border-bottom:none}tr:hover td{background:#FAF7EF}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero{animation:rise .5s ease both}
+    .panel{animation:rise .5s ease both}
+    .panel2{animation:rise .5s .06s ease both}
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="masthead">
+      <div class="wordmark">HomeLoan<span class="dot">.</span>Calculator</div>
+      <div class="tag">Estimate · Compare · Decide</div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-eyebrow">Estimated monthly payment</div>
+      <h1>Your mortgage, <em>at a glance</em></h1>
+      <div class="pay-row"><span class="pay" id="payment">$0</span><span class="pay-per" id="payper">/mo</span></div>
+      <div class="hero-stats">
+        <div class="hstat"><b id="hsTotal">$0</b><span>Total interest</span></div>
+        <div class="hstat"><b id="hsPaid">$0</b><span>Total paid</span></div>
+        <div class="hstat"><b id="hsPayoff">—</b><span>Payoff</span></div>
+        <div class="hstat"><b id="hsSaved">$0</b><span>Interest saved</span></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <form class="panel" id="form" autocomplete="off">
+        <div class="field">
+          <label for="amount">Loan amount</label>
+          <div class="input-wrap"><span class="affix">$</span><input id="amount" type="number" min="0" value="300000"></div>
+        </div>
+        <div class="labeldiv">
+          <div class="field">
+            <label for="rate">Annual rate</label>
+            <div class="input-wrap"><span class="affix">%</span><input id="rate" type="number" min="0" step="0.01" value="6.5"></div>
+          </div>
+          <div class="field">
+            <label for="years">Term</label>
+            <div class="input-wrap"><span class="affix">yr</span><input id="years" type="number" min="1" max="40" value="30"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="pmtfreq">Payment frequency</label>
+          <select id="pmtfreq">
+            <option value="12">Monthly</option>
+            <option value="24">Bi-weekly</option>
+            <option value="52">Weekly</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="extra">Extra payment <span class="hint">per period, optional</span></label>
+          <div class="input-wrap"><span class="affix">$</span><input id="extra" type="number" min="0" value="0"></div>
+        </div>
+        <p class="footnote">Results update as you type. Fixed-rate, interest compounded per payment period.</p>
+      </form>
+
+      <div class="panel panel2">
+        <div class="chart-head">
+          <div>
+            <h2>Where your money goes</h2>
+            <p>Remaining balance vs. total interest over the life of the loan.</p>
+          </div>
+          <div class="legend"><span><i style="background:var(--ink)"></i>Balance</span><span><i style="background:var(--gold)"></i>Interest</span></div>
+        </div>
+        <svg class="chart" id="chart" viewBox="0 0 540 210" role="img" aria-label="Amortization chart over time"></svg>
+
+        <div class="donut-row">
+          <div class="donut">
+            <svg width="96" height="96" id="donut" aria-hidden="true">
+              <circle cx="48" cy="48" r="40" fill="none" stroke="#EDE9DF" stroke-width="16"></circle>
+              <circle id="donutSeg" cx="48" cy="48" r="40" fill="none" stroke="var(--gold)" stroke-width="16"></circle>
+            </svg>
+            <div class="donut-center"><b id="donutPct">0%</b>to interest</div>
+          </div>
+          <div class="donut-keys">
+            <div><span class="kp" style="background:var(--gold)"></span><span>Interest in first payment</span></div>
+            <div><span class="kp" style="background:var(--ink)"></span><span>Principal in first payment</span></div>
+            <div class="saved" id="savedWrap" hidden>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              <span id="savedText"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tblhead">
+      <h2>Amortization schedule</h2>
+      <span id="tblLabel"></span>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead>
+        <tbody id="schedule"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const fmt  = n => n.toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+  const fmt2 = n => n.toLocaleString("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2});
+  const MONTHS_PER = {12:1,24:2,52:52/12};
+  const LABEL = {12:"/mo",24:"/2 wk",52:"/wk"};
+
+  function read(){
+    const P     = Math.max(0, parseFloat($("amount").value)||0);
+    const ar    = (parseFloat($("rate").value)||0)/100;
+    const yrs   = Math.max(1, parseInt($("years").value)||1);
+    const per   = parseInt($("pmtfreq").value);
+    const extra = Math.max(0, parseFloat($("extra").value)||0);
+    const n     = Math.round(yrs*per);
+    const r     = ar/per;
+    const pmt   = r===0 ? P/n : P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+    return {P,r,per,extra,n,pmt};
+  }
+
+  // Single amortization pass; stops at optional t (for chart sampling) or at payoff.
+  function runAmort(P,r,pmt,extra,stopAt){
+    let bal=P, runInt=0, period=0;
+    if(P>0&&pmt>0){
+      while(bal>0.005 && (stopAt==null || period<stopAt)){
+        period++;
+        const interest=bal*r;
+        let principal=pmt-interest+extra;
+        if(principal>bal) principal=bal;
+        bal-=principal; runInt+=interest;
+        if(period>60000) break;
+      }
+    }
+    return {period, runInt, bal};
+  }
+
+  function fmtDur(count, per){
+    if(count<=0) return "—";
+    const months = count * MONTHS_PER[per];
+    if(months<12) return Math.round(months)+" mo";
+    return (months/12).toFixed(1)+" yrs";
+  }
+
+  function compute(){
+    const {P,r,per,extra,pmt} = read();
+    const base = runAmort(P,r,pmt,0);
+    const act  = runAmort(P,r,pmt,extra);
+    const totalInterest = act.runInt;
+    const saved = Math.max(0, base.runInt - act.runInt);
+
+    // ---- hero ----
+    $("payment").textContent = fmt(P>0?pmt:0);
+    $("payper").textContent = LABEL[per];
+    $("hsTotal").textContent = fmt(totalInterest);
+    $("hsPaid").textContent = fmt(P+totalInterest);
+    $("hsPayoff").textContent = fmtDur(act.period, per);
+    $("hsSaved").textContent = fmt(saved);
+    if(saved>0){
+      $("savedWrap").hidden = false;
+      $("savedText").textContent = fmt2(saved)+" of interest & pays off "+fmtDur(act.period,per)+" sooner";
+    } else $("savedWrap").hidden = true;
+
+    // ---- first-payment donut ----
+    const circ=2*Math.PI*40;
+    if(P>0&&pmt>0){
+      const share = Math.min(1, P*r/pmt);
+      $("donutSeg").setAttribute("stroke-dasharray",(share*circ).toFixed(1)+" "+(circ-share*circ).toFixed(1));
+      $("donutPct").textContent = Math.round(share*100)+"%";
+    } else {
+      $("donutSeg").setAttribute("stroke-dasharray","0 "+circ.toFixed(1));
+      $("donutPct").textContent="0%";
+    }
+
+    drawChart(P,r,pmt,extra,per,act.period);
+    drawTable(P,r,pmt,extra,per);
+  }
+
+  // Stacked area: bottom = cumulative interest (gold), top = balance+interest (ink)
+  function drawChart(P,r,pmt,extra,per,totalPer){
+    const svg=$("chart");
+    const W=540,H=210,padL=54,padR=12,padT=14,padB=28;
+    const iw=W-padL-padR, ih=H-padT-padB;
+    const steps=140;
+    const intS=[], balS=[];
+    for(let i=0;i<=steps;i++){
+      const t=Math.round(i/steps*totalPer);
+      const a=runAmort(P,r,pmt,extra,t);
+      intS.push(a.runInt); balS.push(a.bal);
+    }
+    const maxY=Math.max(P, intS[steps], 1)*1.05;
+    const X=i=>padL+iw*i/steps;
+    const Y=v=>padT+ih*(1-v/maxY);
+
+    const baseLine=intS.map((v,i)=>`${i?"L":"M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+    const topLine=intS.map((v,i)=>`${i?"L":"M"}${X(i).toFixed(1)},${Y(v+balS[i]).toFixed(1)}`).join(" ");
+    const goldArea=`${baseLine} L${X(steps).toFixed(1)},${Y(0).toFixed(1)} L${X(0).toFixed(1)},${Y(0).toFixed(1)} Z`;
+    const inkArea=`${topLine} L${X(steps).toFixed(1)},${Y(intS[steps]).toFixed(1)} L${X(0).toFixed(1)},${Y(intS[0]).toFixed(1)} Z`;
+
+    const yr=totalPer/per;
+    const xStep=yr>=30?5:(yr>=10?2:1);
+    let ticks="";
+    for(let z=0;z<=yr;z+=xStep){
+      const i=Math.round(z*per/totalPer*steps);
+      const xx=X(i);
+      ticks+=`<line x1="${xx.toFixed(1)}" y1="${(padT+ih).toFixed(1)}" x2="${xx.toFixed(1)}" y2="${(padT+ih+4).toFixed(1)}" stroke="#C7CBD4"/>`;
+      ticks+=`<text x="${xx.toFixed(1)}" y="${H-9}" text-anchor="middle" class="axis">${z}</text>`;
+    }
+    for(let g=0;g<=2;g++){
+      const v=maxY*(1-g/2), yy=Y(v);
+      ticks+=`<line x1="0" y1="${yy.toFixed(1)}" x2="${W}" y2="${yy.toFixed(1)}" stroke="#EBEDF0"/>`;
+      ticks+=`<text x="${padL-8}" y="${(yy+3).toFixed(1)}" text-anchor="end" class="axis">$${Math.round(v).toLocaleString()}</text>`;
+    }
+
+    const anim= (matchMedia("(prefers-reduced-motion:no-preference)").matches) ? `
+      <style>.astroke{stroke-dasharray:2200;stroke-dashoffset:2200;animation:draw 1.2s ease forwards}.afill{opacity:0;animation:fa .8s .5s ease forwards}@keyframes draw{to{stroke-dashoffset:0}}@keyframes fa{to{opacity:1}}</style>` : "";
+
+    svg.innerHTML=`${anim}${ticks}
+      <path d="${goldArea}" fill="var(--gold)" opacity="0.16" class="afill"/>
+      <path d="${inkArea}"  fill="var(--ink)"  opacity="0.10" class="afill"/>
+      <path d="${topLine}"  fill="none" stroke="var(--ink)"  stroke-width="2.5" stroke-linejoin="round" class="astroke"/>
+      <path d="${baseLine}" fill="none" stroke="var(--gold)" stroke-width="2"   stroke-linejoin="round" class="astroke"/>
+      <text x="${padL+6}" y="${H-9}" class="axis">Year</text>`;
+  }
+
+  function drawTable(P,r,pmt,extra,per){
+    const tbody=$("schedule"); tbody.innerHTML="";
+    let bal=P, period=0;
+    if(P>0&&pmt>0){
+      while(bal>0.005&&period<60000){
+        period++;
+        const interest=bal*r;
+        let principal=pmt-interest+extra;
+        if(principal>bal) principal=bal;
+        bal-=principal;
+        if(period<=12 || period%12===0){
+          tbody.insertAdjacentHTML("beforeend",
+            `<tr><td>#${period}</td><td>${fmt2(principal)}</td><td>${fmt2(interest)}</td><td>${fmt2(Math.max(0,bal))}</td></tr>`);
+        }
+      }
+      const kind = per===12?"payments":(per===24?"bi-weekly payments":"weekly payments");
+      $("tblLabel").textContent = period+" "+kind+" · first 12 shown, then annually";
+    } else {
+      $("tblLabel").textContent = "Enter a loan amount to see the schedule";
+    }
+  }
+
+  ["amount","rate","years","pmtfreq","extra"].forEach(id=>$(id).addEventListener("input",compute));
+  window.addEventListener("load",compute);
+  compute();
+</script>
+</body>
+</html>
